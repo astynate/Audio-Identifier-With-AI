@@ -16,12 +16,6 @@ class AudioProcessor:
             power=None
         )
 
-        # self.inverse = T.InverseSpectrogram(
-        #     n_fft=self.n_fft,
-        #     win_length=self.win_length,
-        #     hop_length=self.hop_length
-        # )
-
         self.inverse = T.GriffinLim(
             n_fft=self.n_fft,
             win_length=self.win_length,
@@ -37,14 +31,26 @@ class AudioProcessor:
 
         return waveform
 
+    # .abs()
     def to_spectrogram(self, waveform):
-        return self.spectrogram(waveform).abs()
+        return self.spectrogram(waveform)
 
     def to_waveform(self, spectrogram):
-        return self.inverse(spectrogram)
+        return torch.istft(
+            spectrogram,
+            n_fft=self.n_fft,
+            win_length=self.win_length,
+            hop_length=self.hop_length
+        )
 
-    # def save_audio(self, waveform, filepath):
-    #     torchaudio.save(filepath, waveform, self.sample_rate)
+    # def to_waveform(self, spectrogram, chunk_size=5000):
+    #     chunks = []
+    #     for start in range(0, spectrogram.size(-1), chunk_size):
+    #         end = start + chunk_size
+    #         chunk = spectrogram[..., start:end]
+    #         waveform_chunk = self.inverse(chunk)
+    #         chunks.append(waveform_chunk)
+    #     return torch.cat(chunks, dim=-1)
 
     def save_audio(self, waveform, filepath):
         if waveform.ndim == 3:
