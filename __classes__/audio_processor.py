@@ -36,6 +36,13 @@ class AudioProcessor:
         return self.spectrogram(waveform)
 
     def to_waveform(self, spectrogram):
+        # spectrogram сейчас имеет форму [batch, channels, freq, time, 2] (последняя ось = real/imag)
+        if spectrogram.size(-1) == 2:  
+            # превратить в комплексный тензор
+            spectrogram = torch.view_as_complex(spectrogram.permute(0,1,3,2,4).contiguous())
+            # но чаще достаточно просто:
+            spectrogram = torch.view_as_complex(spectrogram.contiguous())
+
         return torch.istft(
             spectrogram,
             n_fft=self.n_fft,

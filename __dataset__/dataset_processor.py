@@ -13,7 +13,7 @@ class DatasetProcessor:
 
         self.dataset_directorypath = dataset_directorypath
         self.is_save_dataset = True
-        self.sample_rate = 160
+        self.sample_rate = 16000
         self.audio_processor = audio_processor
         self.data = self.mix_vocals_with_instrumental(num_samples=num_samples, duration=duration)
 
@@ -56,7 +56,7 @@ class DatasetProcessor:
 
             results.append((spec_mix, spec_vocal))
 
-            if self.is_save_dataset is True:
+            if self.is_save_dataset is True and i % 7 == 0:
                 sample_dir = os.path.join(self.dataset_directorypath, "samples", f"sample_{i}")
                 os.makedirs(sample_dir, exist_ok=True)
 
