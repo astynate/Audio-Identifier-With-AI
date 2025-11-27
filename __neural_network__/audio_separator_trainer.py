@@ -10,12 +10,10 @@ import os
 def plot_spec(spec, title, path):
     plt.figure(figsize=(8, 4))
 
-    # spec: [B, C, F, T] или [B, F, T]
-    if spec.dim() == 4:  # [B, C, F, T]
-        spec = spec[0, 0]  # берём первый элемент батча и первый канал
-    elif spec.dim() == 3:  # [B, F, T]
-        spec = spec[0]     # берём первый элемент батча
-    # теперь spec имеет форму [F, T]
+    if spec.dim() == 4:
+        spec = spec[0, 0]
+    elif spec.dim() == 3:
+        spec = spec[0]
 
     spec_to_show = torch.log1p(spec.detach().cpu().abs())
     plt.imshow(spec_to_show.numpy(), origin='lower', aspect='auto', cmap='magma')
@@ -57,14 +55,14 @@ class AudioSeparatorTrainer:
 
     #         print(f"Epoch {epoch+1}/{epochs}, Loss: {total_loss/len(dataloader):.4f}")
 
-    def train(self, train_loader, val_loader=None, epochs=10, lr=1e-3, device="cpu",
+    def train(self, train_loader, val_loader=None, epochs=150, lr=1e-3, device="cpu",
         log_every_batches=50, out_dir="__neural_network__/runs", grad_clip=None):
         criterion = nn.MSELoss()
         optimizer = optim.Adam(self.audio_separator.parameters(), lr=lr)
         self.audio_separator.to(device)
 
         best_val = float("inf")
-        patience, wait = 5, 0  # ранняя остановка
+        patience, wait = 5, 0
 
         for epoch in range(1, epochs + 1):
             self.audio_separator.train()
@@ -87,7 +85,6 @@ class AudioSeparatorTrainer:
                 optimizer.zero_grad()
                 loss.backward()
 
-                # Optional grad clipping
                 if grad_clip is not None:
                     torch.nn.utils.clip_grad_norm_(self.audio_separator.parameters(), grad_clip)
 

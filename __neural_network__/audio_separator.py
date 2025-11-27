@@ -55,7 +55,15 @@ class AudioSeparator(nn.Module):
         self.out_conv = nn.Conv2d(16, out_channels, kernel_size=1)
         self.out_act = nn.Sigmoid()
 
+    # Input 
     def forward(self, mix_spec_complex):
+        if mix_spec_complex.dim() == 3:
+            mix_spec_complex = mix_spec_complex.unsqueeze(0).abs()
+        elif mix_spec_complex.dim() == 4:
+            mix_spec_complex = mix_spec_complex.abs()
+        else:
+            raise ValueError(f"Expected 3D or 4D input, got {mix_spec_complex} {mix_spec_complex.dim()}D")
+
         mix_mag = mix_spec_complex.abs()
         mix_phase = mix_spec_complex.angle()
 
